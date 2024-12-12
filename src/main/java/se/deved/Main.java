@@ -1,6 +1,5 @@
 package se.deved;
 
-import javax.xml.transform.Result;
 import java.sql.*;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -114,6 +113,8 @@ public class Main {
             try (ResultSet result = selectStatement.executeQuery()) {
                 if (result.next()) {
                     displayTodo(result);
+                } else {
+                    System.out.println("There is no todo with id " + todoId);
                 }
             }
         } catch (SQLException exception) {
@@ -167,9 +168,43 @@ public class Main {
     }
 
     public static void deleteTodo() {
+        System.out.print("Enter an id: ");
+        int todoId = scanner.nextInt();
+        scanner.nextLine();
+
+        try (PreparedStatement deleteStatement = connection.prepareStatement("DELETE FROM todos WHERE id = ?")) {
+            deleteStatement.setInt(1, todoId);
+
+            if (deleteStatement.executeUpdate() == 0) {
+                System.out.println("There is no todo with id " + todoId);
+                return;
+            }
+        } catch (SQLException exception) {
+            System.out.println("Failed to delete todo.");
+            return;
+        }
+
+        System.out.println("Deleted todo from database.");
     }
 
     public static void completeTodo() {
+        System.out.print("Enter an id: ");
+        int todoId = scanner.nextInt();
+        scanner.nextLine();
+
+        try (PreparedStatement updateStatement = connection.prepareStatement("UPDATE todos SET completed = true WHERE id = ?")) {
+            updateStatement.setInt(1, todoId);
+
+            if (updateStatement.executeUpdate() == 0) {
+                System.out.println("There is no todo with id " + todoId);
+                return;
+            }
+        } catch (SQLException exception) {
+            System.out.println("Failed to update todo.");
+            return;
+        }
+
+        System.out.println("Marked todo as completed.");
     }
 
     public static void updateTodo() {
